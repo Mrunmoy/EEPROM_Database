@@ -46,6 +46,7 @@
 #include <stdlib.h>
 
 #include "database.h"
+#include "EEPROM_Mapping.h"
 
 /*
 *----------------------------------------------------------------------
@@ -100,6 +101,7 @@
 _STATIC _VOID UpdateApplicationInformation(_VOID);
 _STATIC _VOID UpdateProductDetails(_VOID);
 _STATIC _VOID UpdateSensorData(_VOID);
+_STATIC _VOID TestMaxPageAccess(_VOID);
 /*
 *----------------------------------------------------------------------
 *   Private Functions Definitions
@@ -129,7 +131,9 @@ int main(int argc, char *argv[])
 
 	UpdateApplicationInformation();
 
-	UpdateSensorData();
+        UpdateSensorData();
+
+        TestMaxPageAccess();
 
 	return 0;
 }
@@ -326,14 +330,44 @@ _STATIC _VOID UpdateSensorData(_VOID)
 		printf("\tTimestamp         : %d\n\n", sensorData.data.datetimestamp);
 	}
 
-	if ( DB_ReadWriteSensorInfo(3, &sensorData, EEOP_READ) == EE_OK )
-	{
+        if ( DB_ReadWriteSensorInfo(3, &sensorData, EEOP_READ) == EE_OK )
+        {
 		printf("\tAddress           : 0x%02x \n", sensorData.address);
 		printf("\tDetection Status  : ");
 		(sensorData.detected == B_True) ? printf("Found\n") : printf("Not found\n");
 		printf("\tValue             : %0.2f \n", sensorData.data.value);
 		printf("\tTimestamp         : %d\n\n", sensorData.data.datetimestamp);
-	}
+        }
+}
+
+_STATIC _VOID TestMaxPageAccess(_VOID)
+{
+        UINT8_t writeBuf[EE_PAGESIZE];
+        UINT8_t readBuf[EE_PAGESIZE];
+        UINT16_t address = EE_DATABASE_SIZE - EE_PAGESIZE;
+
+        for (UINT16_t i = 0; i < EE_PAGESIZE; i++)
+        {
+                writeBuf[i] = (UINT8_t)i;
+                readBuf[i] = 0;
+        }
+
+        if (EE_ReadWrite(address, writeBuf, EE_PAGESIZE, EEOP_WRITE) == EE_OK &&
+            EE_ReadWrite(address, readBuf, EE_PAGESIZE, EEOP_READ) == EE_OK)
+        {
+                if (memcmp(writeBuf, readBuf, EE_PAGESIZE) == 0)
+                {
+                        printf("Max page access succeeded\n\n");
+                }
+                else
+                {
+                        printf("Max page access data mismatch\n\n");
+                }
+        }
+        else
+        {
+                printf("Max page access failed\n\n");
+        }
 }
 
 /*
