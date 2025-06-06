@@ -119,7 +119,7 @@ _STATIC EE_ReturnCode_t EE_ReadPage(UINT16_t Address, UINT8_t * pReadBuffer,
                 size_t Size)
 {
         EE_ReturnCode_t result = EE_INVALIDADDRESS;
-        if ( (Address + Size) <= EE_DATABASE_SIZE )
+       if ( Address <= (EE_DATABASE_SIZE - EE_PAGESIZE) )
         {
 #ifdef __SIMULATE_EE_MEMORY_AS_ARRAY
                 memcpy((void*)pReadBuffer, (void*)&EE_MEMORY[Address], Size);
@@ -151,7 +151,7 @@ _STATIC EE_ReturnCode_t EE_WritePage(UINT16_t Address, UINT8_t * pWriteBuffer,
                                              size_t Size)
 {
         EE_ReturnCode_t result = EE_INVALIDADDRESS;
-        if ( (Address + Size) <= EE_DATABASE_SIZE )
+       if ( Address <= (EE_DATABASE_SIZE - EE_PAGESIZE) )
         {
 #ifdef __SIMULATE_EE_MEMORY_AS_ARRAY
                 memcpy((void*)&EE_MEMORY[Address], (void*)pWriteBuffer, Size);
