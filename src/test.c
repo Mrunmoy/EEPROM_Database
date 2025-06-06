@@ -44,6 +44,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "database.h"
 
@@ -270,7 +271,8 @@ _STATIC _VOID UpdateProductDetails(_VOID)
  */
 _STATIC _VOID UpdateSensorData(_VOID)
 {
-	EESensorData_t sensorData;
+        EESensorData_t sensorData;
+        EE_ReturnCode_t result;
 
 	memset((void*)&sensorData, 0, sizeof(sensorData));
 
@@ -278,22 +280,26 @@ _STATIC _VOID UpdateSensorData(_VOID)
 	sensorData.data.value 			= 55.45f;
 	sensorData.data.datetimestamp 	= 1462939739;
 	sensorData.detected 			= B_True;
-	DB_ReadWriteSensorInfo(0, &sensorData, EEOP_WRITE);
+        result = DB_ReadWriteSensorInfo(0, &sensorData, EEOP_WRITE);
+        assert(result == EE_OK);
 
 	sensorData.address 				= 0x02;
 	sensorData.data.value 			= 0.0f;
 	sensorData.detected 			= B_False;
-	DB_ReadWriteSensorInfo(1, &sensorData, EEOP_WRITE);
+        result = DB_ReadWriteSensorInfo(1, &sensorData, EEOP_WRITE);
+        assert(result == EE_OK);
 
 	sensorData.address 				= 0x03;
 	sensorData.data.value 			= 14.33f;
 	sensorData.detected 			= B_True;
-	DB_ReadWriteSensorInfo(2, &sensorData, EEOP_WRITE);
+        result = DB_ReadWriteSensorInfo(2, &sensorData, EEOP_WRITE);
+        assert(result == EE_OK);
 
 	sensorData.address 				= 0x04;
 	sensorData.data.value 			= 0.0f;
 	sensorData.detected 			= B_False;
-	DB_ReadWriteSensorInfo(3, &sensorData, EEOP_WRITE);
+        result = DB_ReadWriteSensorInfo(3, &sensorData, EEOP_WRITE);
+        assert(result == EE_OK);
 
 	memset((void*)&sensorData, 0, sizeof(sensorData));
 
