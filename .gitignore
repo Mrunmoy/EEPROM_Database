@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Build directories
 build/
 CMakeFiles/
@@ -11,3 +12,6 @@ obj/
 # Object files
 *.o
 *.d
+=======
+build/
+>>>>>>> 40b27e1 (Add CMake build with GoogleTest)

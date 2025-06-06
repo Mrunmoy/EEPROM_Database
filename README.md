@@ -49,3 +49,16 @@ cmake --build build
 
 This repository is a starting point for managing small databases in embedded applications. Use the code as a reference for structuring and manipulating EEPROM-based data.
 
+
+## Building and Testing with CMake
+
+A CMake build is provided for running the unit tests. Create a build directory, configure the project and invoke `ctest`:
+
+```bash
+cmake -S . -B build
+cmake --build build
+cd build
+ctest
+```
+
+This will download GoogleTest, build the `EEDatabase` library and run the automated test suite.

@@ -1,19 +1,21 @@
-cmake_minimum_required(VERSION 3.5)
-project(EEDatabase C)
+cmake_minimum_required(VERSION 3.14)
+project(EEDatabase C CXX)
 
 set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# Output binaries to bin/ similar to the old Makefile
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# Library
+file(GLOB SRC_FILES src/*.c)
+add_library(EEDatabase ${SRC_FILES})
+target_include_directories(EEDatabase PUBLIC ${PROJECT_SOURCE_DIR}/inc)
+target_compile_options(EEDatabase PUBLIC -Wall -O3 -g)
 
-add_executable(EEDatabase
-    src/EEPROM_Mapping.c
-    src/database.c
-    src/factory_defaults.c
-    src/test.c
+# GoogleTest
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/release-1.12.1.zip
 )
+FetchContent_MakeAvailable(googletest)
 
-target_include_directories(EEDatabase PRIVATE ${CMAKE_SOURCE_DIR}/inc)
-
-target_compile_options(EEDatabase PRIVATE -Wall -O3 -g -Wno-pointer-to-int-cast)
+enable_testing()
+add_subdirectory(tests)
