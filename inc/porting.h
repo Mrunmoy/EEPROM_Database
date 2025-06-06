@@ -117,8 +117,8 @@
 typedef enum _ENDIAN
 {
 	__ENDIAN_LITTLE = 0,	/**< enum value __ENDIAN_LITTLE = 0. Indicates Little Endian. */
-	__ENDIAN_BIG,			/**< enum value __ENDIAN_BIG = 0. Indicates Big Endian. */
-	__ENDIAN_MAX			/**< enum value __ENDIAN_MAX = 0. Endian Enum Senitnel. */
+	__ENDIAN_BIG,			/**< enum value __ENDIAN_BIG = 1. Indicates Big Endian. */
+	__ENDIAN_MAX			/**< enum value __ENDIAN_MAX = 2. Endian Enum Senitnel. */
 }_ENDIAN;
 
 //! DataType_t.
