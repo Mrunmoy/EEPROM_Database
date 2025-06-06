@@ -36,6 +36,7 @@
 #define INC_DATABASE_H_
 
 #include "porting.h"
+#include <stddef.h>
 
 /*
 *----------------------------------------------------------------------
@@ -90,7 +91,7 @@
 /*! \var OFFSET_OF(datatype, member).
     \brief A Macro to get offset of a member field inside a data structure.
 */
-#define OFFSET_OF(structname, structmember) ((UINT32_t)&(((structname*)0)->structmember))
+#define OFFSET_OF(structname, structmember) ((UINT32_t)offsetof(structname, structmember))
 
 /*! \struct DateTimeStamp_t
     \brief  Date Time Structure Definition.

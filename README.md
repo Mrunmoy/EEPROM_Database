@@ -39,6 +39,12 @@ Run `make` from the repository root to build the project. The resulting binary `
 make
 ```
 
+To build the C++ version, use the provided `Makefile.cpp` which compiles the sources in the `cpp/` folder.
+
+```
+make -f Makefile.cpp
+```
+
 ## Learning More
 
 - Review `inc/porting.h` to see how data types are defined for portability across compilers.
