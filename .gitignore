@@ -1,0 +1,13 @@
+# Build directories
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# Output directories
+bin/
+obj/
+
+# Object files
+*.o
+*.d

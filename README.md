@@ -5,14 +5,14 @@ This project provides a small C implementation of a flat-file database stored in
 ## Repository Layout
 
 ```
-LICENSE   Makefile   README.md
-img/      inc/       src/
+LICENSE   CMakeLists.txt   README.md
+img/      inc/             src/
 ```
 
 - **`inc/`** – Header files defining the EEPROM layout, data types, and public API.
 - **`src/`** – Implementations for EEPROM access, database routines, factory defaults, and a test program.
 - **`img/`** – Contains `MydrawingStack.png`, an illustration of the data layout.
-- **`Makefile`** – Builds the project (`EEDatabase`).
+- **`CMakeLists.txt`** – CMake build script for `EEDatabase`.
 
 ## Key Components
 
@@ -33,10 +33,12 @@ Structures in `inc/database.h` describe how data is stored in EEPROM. The main s
 
 ## Building
 
-Run `make` from the repository root to build the project. The resulting binary `EEDatabase` will appear in `bin/`.
+Create a build directory and run CMake to configure the project. Then build the
+`EEDatabase` target.
 
 ```
-make
+cmake -S . -B build
+cmake --build build
 ```
 
 ## Learning More
