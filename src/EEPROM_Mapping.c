@@ -116,15 +116,15 @@ _STATIC EE_ReturnCode_t EE_Write(UINT16_t Address, UINT8_t * pWriteBuffer,
  *----------------------------------------------------------------------
  */
 _STATIC EE_ReturnCode_t EE_ReadPage(UINT16_t Address, UINT8_t * pReadBuffer,
-		size_t Size)
+                size_t Size)
 {
-	EE_ReturnCode_t result = EE_INVALIDADDRESS;
-	if ( (Address >= 0) && (Address < (EE_DATABASE_SIZE - EE_PAGESIZE)) )
-	{
+        EE_ReturnCode_t result = EE_INVALIDADDRESS;
+        if ( (Address + Size) <= EE_DATABASE_SIZE )
+        {
 #ifdef __SIMULATE_EE_MEMORY_AS_ARRAY
-		memcpy((void*)pReadBuffer, (void*)&EE_MEMORY[Address], Size);
+                memcpy((void*)pReadBuffer, (void*)&EE_MEMORY[Address], Size);
 #endif
-		result = EE_OK;
+                result = EE_OK;
 	}
 	return result;
 }
@@ -148,15 +148,15 @@ _STATIC EE_ReturnCode_t EE_ReadPage(UINT16_t Address, UINT8_t * pReadBuffer,
  *----------------------------------------------------------------------
  */
 _STATIC EE_ReturnCode_t EE_WritePage(UINT16_t Address, UINT8_t * pWriteBuffer,
-		                             size_t Size)
+                                             size_t Size)
 {
-	EE_ReturnCode_t result = EE_INVALIDADDRESS;
-	if ( (Address >= 0) && (Address < (EE_DATABASE_SIZE - EE_PAGESIZE)) )
-	{
+        EE_ReturnCode_t result = EE_INVALIDADDRESS;
+        if ( (Address + Size) <= EE_DATABASE_SIZE )
+        {
 #ifdef __SIMULATE_EE_MEMORY_AS_ARRAY
-		memcpy((void*)&EE_MEMORY[Address], (void*)pWriteBuffer, Size);
+                memcpy((void*)&EE_MEMORY[Address], (void*)pWriteBuffer, Size);
 #endif
-		result = EE_OK;
+                result = EE_OK;
 	}
 	return result;
 }
@@ -191,7 +191,7 @@ _STATIC EE_ReturnCode_t EE_Read(UINT16_t Address, UINT8_t * pReadBuffer,
 	UINT16_t StartAddress = Address;
 	UINT16_t byteIndex = 0;
 
-	if ( (Address >= 0) && ((Address+Size) < EE_DATABASE_SIZE) )
+	if ( (Address + Size) <= EE_DATABASE_SIZE )
 	{
 		/* Will it fit within the current page */
 		if ((CurrentPositionWithinPage + Size) < EE_PAGESIZE)
@@ -267,7 +267,7 @@ _STATIC EE_ReturnCode_t EE_Write(UINT16_t Address, UINT8_t * pWriteBuffer,
 	UINT16_t StartAddress = Address;
 	UINT16_t byteIndex = 0;
 
-	if ( (Address >= 0) && ((Address+Size) < EE_DATABASE_SIZE) )
+	if ( (Address + Size) <= EE_DATABASE_SIZE )
 	{
 		/* Will it fit within the current page */
 		if ((CurrentPositionWithinPage + Size) < EE_PAGESIZE)
