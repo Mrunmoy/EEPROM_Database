@@ -33,11 +33,15 @@ Structures in `inc/database.h` describe how data is stored in EEPROM. The main s
 
 ## Building
 
-Run `make` from the repository root to build the project. The resulting binary `EEDatabase` will appear in `bin/`.
+Create a build directory and build with CMake:
 
 ```
-make
+mkdir build && cd build
+cmake ..
+cmake --build .
 ```
+
+The resulting `EEDatabase` binary will be placed in `bin/` inside the build directory. The old Makefile is still provided for compatibility with existing workflows.
 
 ## Learning More
 
