@@ -5,14 +5,15 @@ This project provides a small C implementation of a flat-file database stored in
 ## Repository Layout
 
 ```
-LICENSE   Makefile   README.md
-img/      inc/       src/
+LICENSE   Makefile   CMakeLists.txt   README.md
+img/      inc/       src/             tests/
 ```
 
 - **`inc/`** – Header files defining the EEPROM layout, data types, and public API.
 - **`src/`** – Implementations for EEPROM access, database routines, factory defaults, and a test program.
 - **`img/`** – Contains `MydrawingStack.png`, an illustration of the data layout.
 - **`Makefile`** – Builds the project (`EEDatabase`).
+- **`CMakeLists.txt`** – CMake build script and GoogleTest integration.
 
 ## Key Components
 
@@ -39,10 +40,16 @@ Run `make` from the repository root to build the project. The resulting binary `
 make
 ```
 
-To build the C++ version, use the provided `Makefile.cpp` which compiles the sources in the `cpp/` folder.
+### Building and Testing with CMake
 
-```
-make -f Makefile.cpp
+If CMake is available, a build script is provided that downloads GoogleTest and compiles the unit tests.
+Create a build directory, configure the project and run the tests:
+
+```bash
+cmake -S . -B build
+cmake --build build
+cd build
+ctest
 ```
 
 ## Learning More
