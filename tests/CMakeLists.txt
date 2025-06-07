@@ -1,5 +1,5 @@
 add_executable(ee_database_tests test_database.cpp)
 target_link_libraries(ee_database_tests PRIVATE EEDatabase gtest_main)
-target_include_directories(ee_database_tests PRIVATE ${PROJECT_SOURCE_DIR}/inc)
+target_include_directories(ee_database_tests PRIVATE ${PROJECT_SOURCE_DIR}/inc ${PROJECT_SOURCE_DIR}/include)
 target_compile_options(ee_database_tests PRIVATE -Wno-pointer-to-int-cast -fpermissive)
 add_test(NAME ee_database_tests COMMAND ee_database_tests)
