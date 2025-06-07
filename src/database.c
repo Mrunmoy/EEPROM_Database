@@ -146,13 +146,18 @@ EE_ReturnCode_t DB_ZeroFillEE(_VOID)
 	/* Clear the buffer to 0s */
 	memset(gReadWriteBuffer, 0, sizeof(gReadWriteBuffer));
 
-	/* for each page, fill with 0s */
-	for(address=0; address<EE_DATABASE_SIZE; address+=EE_PAGESIZE)
-	{
-		if ( (result = EE_ReadWrite(address, gReadWriteBuffer, EE_PAGESIZE, EEOP_WRITE)) != EE_OK )
-		{
-			break;
-		}
+        /* for each page, fill with 0s */
+        for(address=0; address<EE_DATABASE_SIZE; address+=EE_PAGESIZE)
+        {
+                size_t chunk = EE_PAGESIZE;
+                if ((address + chunk) > EE_DATABASE_SIZE)
+                {
+                        chunk = EE_DATABASE_SIZE - address;
+                }
+                if ( (result = EE_ReadWrite(address, gReadWriteBuffer, chunk, EEOP_WRITE)) != EE_OK )
+                {
+                        break;
+                }
 
 		/* kick the watch dog if its enabled so that
 		 * cpu reset doesn't happen during zero fill */
