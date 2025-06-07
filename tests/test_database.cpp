@@ -54,8 +54,8 @@ TEST(EEReadWrite, CrossPageWriteRead) {
     }
 }
 
-TEST(Database, ZeroFillFails) {
-    EXPECT_EQ(EEDatabase::DB_ZeroFillEE(), EE_INVALIDADDRESS);
+TEST(Database, ZeroFillSucceeds) {
+    EXPECT_EQ(EEDatabase::DB_ZeroFillEE(), EE_OK);
 }
 
 TEST(Database, DatabaseSignatureNull) {
@@ -174,9 +174,9 @@ TEST(Database, SensorInfoWriteReadHighIndex) {
     sensor_write.detected = B_TRUE;
     sensor_write.data.datetimestamp = 4321;
     sensor_write.data.value = 11.22f;
-    EXPECT_EQ(EEDatabase::DB_ReadWriteSensorInfo(NUM_SENSORS - 1, &sensor_write, EEOP_WRITE), EE_INVALIDADDRESS);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteSensorInfo(NUM_SENSORS - 1, &sensor_write, EEOP_WRITE), EE_OK);
     EESensorData_t sensor_read{};
-    EXPECT_EQ(EEDatabase::DB_ReadWriteSensorInfo(NUM_SENSORS - 1, &sensor_read, EEOP_READ), EE_INVALIDADDRESS);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteSensorInfo(NUM_SENSORS - 1, &sensor_read, EEOP_READ), EE_OK);
 }
 
 int main(int argc, char **argv) {

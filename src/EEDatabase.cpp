@@ -28,7 +28,7 @@ UINT8_t EEPROM::EE_MEMORY[EE_PAGESIZE * EE_PAGES] = {0};
 EE_ReturnCode_t EEPROM::ReadPage(UINT16_t Address, UINT8_t *pReadBuffer,
                                  size_t Size) {
     EE_ReturnCode_t result = EE_INVALIDADDRESS;
-    if (Address <= (EE_DATABASE_SIZE - EE_PAGESIZE)) {
+    if ((Address + Size) <= EE_DATABASE_SIZE) {
 #ifdef __SIMULATE_EE_MEMORY_AS_ARRAY
         memcpy(pReadBuffer, &EE_MEMORY[Address], Size);
 #endif
@@ -40,7 +40,7 @@ EE_ReturnCode_t EEPROM::ReadPage(UINT16_t Address, UINT8_t *pReadBuffer,
 EE_ReturnCode_t EEPROM::WritePage(UINT16_t Address, UINT8_t *pWriteBuffer,
                                   size_t Size) {
     EE_ReturnCode_t result = EE_INVALIDADDRESS;
-    if (Address <= (EE_DATABASE_SIZE - EE_PAGESIZE)) {
+    if ((Address + Size) <= EE_DATABASE_SIZE) {
 #ifdef __SIMULATE_EE_MEMORY_AS_ARRAY
         memcpy(&EE_MEMORY[Address], pWriteBuffer, Size);
 #endif
@@ -232,7 +232,11 @@ EE_ReturnCode_t EEDatabase::DB_ZeroFillEE() {
     int address;
     memset(gReadWriteBuffer, 0, sizeof(gReadWriteBuffer));
     for (address = 0; address < EE_DATABASE_SIZE; address += EE_PAGESIZE) {
-        if ((result = EEPROM::ReadWrite(address, gReadWriteBuffer, EE_PAGESIZE, EEOP_WRITE)) != EE_OK) {
+        size_t chunk = EE_PAGESIZE;
+        if ((address + chunk) > EE_DATABASE_SIZE) {
+            chunk = EE_DATABASE_SIZE - address;
+        }
+        if ((result = EEPROM::ReadWrite(address, gReadWriteBuffer, chunk, EEOP_WRITE)) != EE_OK) {
             break;
         }
     }
