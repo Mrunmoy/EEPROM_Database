@@ -158,6 +158,7 @@ EE_ReturnCode_t DB_ZeroFillEE(_VOID)
 		 * cpu reset doesn't happen during zero fill */
 		KICK_WATCHDOG();
 	}
+
 	return result;
 }
 
@@ -185,29 +186,27 @@ EE_ReturnCode_t DB_Initialize(_VOID)
 	printf("%s\n", __FUNCTION__);
 #endif
 
-
 	/* Read the Database signature of EE Database */
-	if ( (result = EE_ReadWrite(address, (UINT8_t *)&db_signature, sizeof(db_signature), EEOP_READ)) == EE_OK )
+	if ( (result = EE_ReadWrite(address, (UINT8_t *)&db_signature, sizeof(db_signature), EEOP_READ)) != EE_OK )
 	{
-		/* Check if the EE Database is valid */
-		if (db_signature == DB_SIGNATURE)
-		{
-			result = EE_OK;
-
-			/* signature matches, so database is OK
-			 * Now, load sensor data from EEPROM */
-		}
-		else
-		{
-			/* Init the EE Database to 0s */
-			DB_ZeroFillEE();
-
-			/* Reset EE Database to Factory defaults settings */
-			ReinitFactorySettings();
-		}
+		return result;
 	}
 
-	return result;
+	/* Check if the EE Database is valid */
+	if (db_signature != DB_SIGNATURE)
+	{
+		/* Init the EE Database to 0s */
+		DB_ZeroFillEE();
+
+		/* Reset EE Database to Factory defaults settings */
+		ReinitFactorySettings();
+
+		return EE_OK;
+	}
+
+	/* signature matches, so database is OK
+	 * Now, load sensor data from EEPROM */
+	return EE_OK;
 }
 
 /*
@@ -230,19 +229,17 @@ EE_ReturnCode_t DB_Initialize(_VOID)
 EE_ReturnCode_t DB_ReadWriteAppInfo(EEBootAppCommonDataStruct_t *pAppInfo,
 		EE_Opcode_t operation)
 {
-	EE_ReturnCode_t result = EE_INVALIDSOURCE;
-
 #ifdef __DEBUG_DB
 	printf("%s\n", __FUNCTION__);
 #endif
 
-	if (pAppInfo)
+	if (!pAppInfo)
 	{
-		UINT16_t address = EE_DEV_SHARED_DATA_OFFSET() + EE_APP_OFFSET();
-		result = EE_ReadWrite(address, (UINT8_t*)pAppInfo, sizeof(*pAppInfo), operation);
+		return EE_INVALIDSOURCE;
 	}
 
-	return result;
+	UINT16_t address = EE_DEV_SHARED_DATA_OFFSET() + EE_APP_OFFSET();
+	return EE_ReadWrite(address, (UINT8_t*)pAppInfo, sizeof(*pAppInfo), operation);
 }
 
 
@@ -267,19 +264,17 @@ EE_ReturnCode_t DB_ReadWriteAppInfo(EEBootAppCommonDataStruct_t *pAppInfo,
 EE_ReturnCode_t DB_ReadWriteBootInfo(EEBootAppCommonDataStruct_t *pBootInfo,
 		EE_Opcode_t operation)
 {
-	EE_ReturnCode_t result = EE_INVALIDSOURCE;
-
 #ifdef __DEBUG_DB
 	printf("%s\n", __FUNCTION__);
 #endif
 
-	if (pBootInfo)
+	if (!pBootInfo)
 	{
-		UINT16_t address = EE_DEV_SHARED_DATA_OFFSET() + EE_BOOT_OFFSET();
-		result = EE_ReadWrite(address, (UINT8_t*)pBootInfo, sizeof(*pBootInfo), operation);
+		return EE_INVALIDSOURCE;
 	}
 
-	return result;
+	UINT16_t address = EE_DEV_SHARED_DATA_OFFSET() + EE_BOOT_OFFSET();
+	return EE_ReadWrite(address, (UINT8_t*)pBootInfo, sizeof(*pBootInfo), operation);
 }
 
 
@@ -305,19 +300,17 @@ EE_ReturnCode_t DB_ReadWriteBootInfo(EEBootAppCommonDataStruct_t *pBootInfo,
 EE_ReturnCode_t DB_ReadWriteProductInfo(EEDeviceProductData_t *pProductInfo,
 		EE_Opcode_t operation)
 {
-	EE_ReturnCode_t result = EE_INVALIDSOURCE;
-
 #ifdef __DEBUG_DB
 	printf("%s\n", __FUNCTION__);
 #endif
 
-	if (pProductInfo)
+	if (!pProductInfo)
 	{
-		UINT16_t address = EE_DEV_PRODUCT_DATA_OFFSET();
-		result = EE_ReadWrite(address, (UINT8_t*)pProductInfo, sizeof(*pProductInfo), operation);
+		return EE_INVALIDSOURCE;
 	}
 
-	return result;
+	UINT16_t address = EE_DEV_PRODUCT_DATA_OFFSET();
+	return EE_ReadWrite(address, (UINT8_t*)pProductInfo, sizeof(*pProductInfo), operation);
 }
 
 
@@ -344,19 +337,17 @@ EE_ReturnCode_t DB_ReadWriteProductInfo(EEDeviceProductData_t *pProductInfo,
 EE_ReturnCode_t DB_ReadWriteDatabaseSignature(UINT32_t *pSignature,
 		EE_Opcode_t operation)
 {
-	EE_ReturnCode_t result = EE_INVALIDSOURCE;
-
 #ifdef __DEBUG_DB
 	printf("%s\n", __FUNCTION__);
 #endif
 
-	if (pSignature)
+	if (!pSignature)
 	{
-		UINT16_t address = EE_DB_SIGNATURE_OFFSET();
-		result = EE_ReadWrite(address, (UINT8_t*)pSignature, sizeof(*pSignature), operation);
+		return EE_INVALIDSOURCE;
 	}
 
-	return result;
+	UINT16_t address = EE_DB_SIGNATURE_OFFSET();
+	return EE_ReadWrite(address, (UINT8_t*)pSignature, sizeof(*pSignature), operation);
 }
 
 
@@ -385,24 +376,20 @@ EE_ReturnCode_t DB_ReadWriteSensorInfo(UINT8_t SensorIndex,
 		EESensorData_t *pSensorInfo,
 		EE_Opcode_t operation)
 {
-	EE_ReturnCode_t result = EE_INVALIDSOURCE;
-
 #ifdef __DEBUG_DB
 	printf("%s\n", __FUNCTION__);
 #endif
 
-	if (pSensorInfo)
+	if (!pSensorInfo)
 	{
-		if ( SensorIndex < NUM_SENSORS)
-		{
-			UINT16_t address = EE_SENSORDATA_OFFSET(SensorIndex);
-			result = EE_ReadWrite(address, (UINT8_t*)pSensorInfo, sizeof(*pSensorInfo), operation);
-		}
-		else
-		{
-			result = EE_INVALIDDATA;
-		}
+		return EE_INVALIDSOURCE;
 	}
 
-	return result;
+	if ( SensorIndex >= NUM_SENSORS)
+	{
+		return EE_INVALIDDATA;
+	}
+
+	UINT16_t address = EE_SENSORDATA_OFFSET(SensorIndex);
+	return EE_ReadWrite(address, (UINT8_t*)pSensorInfo, sizeof(*pSensorInfo), operation);
 }
