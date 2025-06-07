@@ -1,9 +1,6 @@
 #include <gtest/gtest.h>
 #include <string.h>
-extern "C" {
-#include "database.h"
-#include "EEPROM_Mapping.h"
-}
+#include "EEDatabase.hpp"
 
 TEST(EEReadWrite, WriteAndReadBack) {
     const UINT16_t addr = 0;
@@ -15,8 +12,8 @@ TEST(EEReadWrite, WriteAndReadBack) {
         read_buf[i] = 0;
     }
 
-    EXPECT_EQ(EE_ReadWrite(addr, write_buf, sizeof(write_buf), EEOP_WRITE), EE_OK);
-    EXPECT_EQ(EE_ReadWrite(addr, read_buf, sizeof(read_buf), EEOP_READ), EE_OK);
+    EXPECT_EQ(EEPROM::ReadWrite(addr, write_buf, sizeof(write_buf), EEOP_WRITE), EE_OK);
+    EXPECT_EQ(EEPROM::ReadWrite(addr, read_buf, sizeof(read_buf), EEOP_READ), EE_OK);
 
     for (int i = 0; i < 16; ++i) {
         EXPECT_EQ(write_buf[i], read_buf[i]);
@@ -25,21 +22,21 @@ TEST(EEReadWrite, WriteAndReadBack) {
 
 TEST(Database, InitializeSetsSignature) {
     UINT32_t signature = 0;
-    EXPECT_EQ(DB_Initialize(), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_Initialize(), EE_OK);
     UINT16_t addr = EE_DB_SIGNATURE_OFFSET();
-    EXPECT_EQ(EE_ReadWrite(addr, (UINT8_t*)&signature, sizeof(signature), EEOP_READ), EE_OK);
+    EXPECT_EQ(EEPROM::ReadWrite(addr, (UINT8_t*)&signature, sizeof(signature), EEOP_READ), EE_OK);
     EXPECT_EQ(signature, EE_DATABASE_SIGNATURE);
 }
 
 TEST(EEReadWrite, InvalidOperation) {
     UINT8_t buf[1] = {0};
-    EXPECT_EQ(EE_ReadWrite(0, buf, sizeof(buf), (EE_Opcode_t)EEOP_MAX), EE_INVALIDOPERATION);
+    EXPECT_EQ(EEPROM::ReadWrite(0, buf, sizeof(buf), (EE_Opcode_t)EEOP_MAX), EE_INVALIDOPERATION);
 }
 
 TEST(EEReadWrite, InvalidAddress) {
     UINT8_t buf[2] = {1, 2};
     UINT16_t addr = EE_DATABASE_SIZE - 1;
-    EXPECT_EQ(EE_ReadWrite(addr, buf, sizeof(buf), EEOP_WRITE), EE_INVALIDADDRESS);
+    EXPECT_EQ(EEPROM::ReadWrite(addr, buf, sizeof(buf), EEOP_WRITE), EE_INVALIDADDRESS);
 }
 
 TEST(EEReadWrite, CrossPageWriteRead) {
@@ -50,31 +47,31 @@ TEST(EEReadWrite, CrossPageWriteRead) {
         write_buf[i] = static_cast<UINT8_t>(i + 1);
         read_buf[i] = 0;
     }
-    EXPECT_EQ(EE_ReadWrite(addr, write_buf, sizeof(write_buf), EEOP_WRITE), EE_OK);
-    EXPECT_EQ(EE_ReadWrite(addr, read_buf, sizeof(read_buf), EEOP_READ), EE_OK);
+    EXPECT_EQ(EEPROM::ReadWrite(addr, write_buf, sizeof(write_buf), EEOP_WRITE), EE_OK);
+    EXPECT_EQ(EEPROM::ReadWrite(addr, read_buf, sizeof(read_buf), EEOP_READ), EE_OK);
     for (int i = 0; i < 40; ++i) {
         EXPECT_EQ(write_buf[i], read_buf[i]);
     }
 }
 
 TEST(Database, ZeroFillFails) {
-    EXPECT_EQ(DB_ZeroFillEE(), EE_INVALIDADDRESS);
+    EXPECT_EQ(EEDatabase::DB_ZeroFillEE(), EE_INVALIDADDRESS);
 }
 
 TEST(Database, DatabaseSignatureNull) {
-    EXPECT_EQ(DB_ReadWriteDatabaseSignature(NULL, EEOP_READ), EE_INVALIDSOURCE);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteDatabaseSignature(NULL, EEOP_READ), EE_INVALIDSOURCE);
 }
 
 TEST(Database, DatabaseSignatureWriteRead) {
     UINT32_t sig_write = 0x12345678;
-    EXPECT_EQ(DB_ReadWriteDatabaseSignature(&sig_write, EEOP_WRITE), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteDatabaseSignature(&sig_write, EEOP_WRITE), EE_OK);
     UINT32_t sig_read = 0;
-    EXPECT_EQ(DB_ReadWriteDatabaseSignature(&sig_read, EEOP_READ), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteDatabaseSignature(&sig_read, EEOP_READ), EE_OK);
     EXPECT_EQ(sig_write, sig_read);
 }
 
 TEST(Database, AppInfoNull) {
-    EXPECT_EQ(DB_ReadWriteAppInfo(NULL, EEOP_READ), EE_INVALIDSOURCE);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteAppInfo(NULL, EEOP_READ), EE_INVALIDSOURCE);
 }
 
 TEST(Database, AppInfoWriteRead) {
@@ -91,16 +88,16 @@ TEST(Database, AppInfoWriteRead) {
     app_write.alt_start_address = 0x3000;
     app_write.install_date.tm_year = 2023;
     app_write.checksum = 0xAA55AA55;
-    EXPECT_EQ(DB_ReadWriteAppInfo(&app_write, EEOP_WRITE), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteAppInfo(&app_write, EEOP_WRITE), EE_OK);
     EEBootAppCommonDataStruct_t app_read{};
-    EXPECT_EQ(DB_ReadWriteAppInfo(&app_read, EEOP_READ), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteAppInfo(&app_read, EEOP_READ), EE_OK);
     EXPECT_EQ(app_read.signature, app_write.signature);
     EXPECT_EQ(app_read.start_address, app_write.start_address);
     EXPECT_EQ(app_read.checksum, app_write.checksum);
 }
 
 TEST(Database, BootInfoNull) {
-    EXPECT_EQ(DB_ReadWriteBootInfo(NULL, EEOP_READ), EE_INVALIDSOURCE);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteBootInfo(NULL, EEOP_READ), EE_INVALIDSOURCE);
 }
 
 TEST(Database, BootInfoWriteRead) {
@@ -117,16 +114,16 @@ TEST(Database, BootInfoWriteRead) {
     boot_write.alt_start_address = 0x6000;
     boot_write.install_date.tm_year = 2024;
     boot_write.checksum = 0x55AA55AA;
-    EXPECT_EQ(DB_ReadWriteBootInfo(&boot_write, EEOP_WRITE), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteBootInfo(&boot_write, EEOP_WRITE), EE_OK);
     EEBootAppCommonDataStruct_t boot_read{};
-    EXPECT_EQ(DB_ReadWriteBootInfo(&boot_read, EEOP_READ), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteBootInfo(&boot_read, EEOP_READ), EE_OK);
     EXPECT_EQ(boot_read.signature, boot_write.signature);
     EXPECT_EQ(boot_read.start_address, boot_write.start_address);
     EXPECT_EQ(boot_read.checksum, boot_write.checksum);
 }
 
 TEST(Database, ProductInfoNull) {
-    EXPECT_EQ(DB_ReadWriteProductInfo(NULL, EEOP_READ), EE_INVALIDSOURCE);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteProductInfo(NULL, EEOP_READ), EE_INVALIDSOURCE);
 }
 
 TEST(Database, ProductInfoWriteRead) {
@@ -139,21 +136,21 @@ TEST(Database, ProductInfoWriteRead) {
     strcpy(prod_write.name_str, "NAME");
     strcpy(prod_write.product_str, "PRODUCT");
     prod_write.mfg_date.tm_year = 2025;
-    EXPECT_EQ(DB_ReadWriteProductInfo(&prod_write, EEOP_WRITE), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteProductInfo(&prod_write, EEOP_WRITE), EE_OK);
     EEDeviceProductData_t prod_read{};
-    EXPECT_EQ(DB_ReadWriteProductInfo(&prod_read, EEOP_READ), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteProductInfo(&prod_read, EEOP_READ), EE_OK);
     EXPECT_STREQ(prod_read.model_str, prod_write.model_str);
     EXPECT_STREQ(prod_read.name_str, prod_write.name_str);
     EXPECT_STREQ(prod_read.product_str, prod_write.product_str);
 }
 
 TEST(Database, SensorInfoNull) {
-    EXPECT_EQ(DB_ReadWriteSensorInfo(0, NULL, EEOP_READ), EE_INVALIDSOURCE);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteSensorInfo(0, NULL, EEOP_READ), EE_INVALIDSOURCE);
 }
 
 TEST(Database, SensorInfoInvalidIndex) {
     EESensorData_t dummy{};
-    EXPECT_EQ(DB_ReadWriteSensorInfo(NUM_SENSORS, &dummy, EEOP_WRITE), EE_INVALIDDATA);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteSensorInfo(NUM_SENSORS, &dummy, EEOP_WRITE), EE_INVALIDDATA);
 }
 
 TEST(Database, SensorInfoWriteRead) {
@@ -162,9 +159,9 @@ TEST(Database, SensorInfoWriteRead) {
     sensor_write.detected = B_TRUE;
     sensor_write.data.datetimestamp = 1234;
     sensor_write.data.value = 56.78f;
-    EXPECT_EQ(DB_ReadWriteSensorInfo(0, &sensor_write, EEOP_WRITE), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteSensorInfo(0, &sensor_write, EEOP_WRITE), EE_OK);
     EESensorData_t sensor_read{};
-    EXPECT_EQ(DB_ReadWriteSensorInfo(0, &sensor_read, EEOP_READ), EE_OK);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteSensorInfo(0, &sensor_read, EEOP_READ), EE_OK);
     EXPECT_EQ(sensor_read.address, sensor_write.address);
     EXPECT_EQ(sensor_read.detected, sensor_write.detected);
     EXPECT_EQ(sensor_read.data.datetimestamp, sensor_write.data.datetimestamp);
@@ -177,9 +174,9 @@ TEST(Database, SensorInfoWriteReadHighIndex) {
     sensor_write.detected = B_TRUE;
     sensor_write.data.datetimestamp = 4321;
     sensor_write.data.value = 11.22f;
-    EXPECT_EQ(DB_ReadWriteSensorInfo(NUM_SENSORS - 1, &sensor_write, EEOP_WRITE), EE_INVALIDADDRESS);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteSensorInfo(NUM_SENSORS - 1, &sensor_write, EEOP_WRITE), EE_INVALIDADDRESS);
     EESensorData_t sensor_read{};
-    EXPECT_EQ(DB_ReadWriteSensorInfo(NUM_SENSORS - 1, &sensor_read, EEOP_READ), EE_INVALIDADDRESS);
+    EXPECT_EQ(EEDatabase::DB_ReadWriteSensorInfo(NUM_SENSORS - 1, &sensor_read, EEOP_READ), EE_INVALIDADDRESS);
 }
 
 int main(int argc, char **argv) {

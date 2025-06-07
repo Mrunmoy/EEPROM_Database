@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
-project(EEDatabase C CXX)
+project(EEDatabase CXX)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 14)
 
 # Library
-file(GLOB SRC_FILES src/*.c)
+set(SRC_FILES src/EEDatabase.cpp)
 add_library(EEDatabase ${SRC_FILES})
-target_include_directories(EEDatabase PUBLIC ${PROJECT_SOURCE_DIR}/inc)
+target_include_directories(EEDatabase PUBLIC ${PROJECT_SOURCE_DIR}/inc ${PROJECT_SOURCE_DIR}/include)
 target_compile_options(EEDatabase PUBLIC -Wall -O3 -g)
 
 # GoogleTest
