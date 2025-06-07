@@ -1,5 +1,10 @@
 # Ignore build output directories
 bin/
-bin_cpp/
 obj/
-obj_cpp/
+# CMake build artifacts
+build/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+*.o
+*.d
