@@ -549,6 +549,7 @@ struct EEDataLayout_t
 	 */
 	UINT8_t               				_filler1[RESERVED_FILLER_SIZE];
 	UINT32_t                            database_signature;
+
 	/********* Should not move these ***********************/
 
 	/* Create Device runtime data structure instances here */
@@ -565,10 +566,10 @@ typedef struct EEDataLayout_t EEDataLayout_t;
 	#define EE_DEV_SHARED_DATA_OFFSET()						(EE_LAYOUT_OFFSET(shared_data))
 	#define EE_DB_SIGNATURE_OFFSET()						(EE_LAYOUT_OFFSET(database_signature))
 	#define EE_SENSORDATA_OFFSET(index)						(EE_LAYOUT_OFFSET(sensor_data) + index*(sizeof(EESensorData_t)))
-		#define EE_SENSORDATA_ADDRESS_OFFSET(index)			(EE_SENSORDATA_OFFSET(index) + EE_SD_ADDRESS_OFFSET())
-		#define EE_SENSORDATA_DETECTEDFLAG_OFFSET(index)	(EE_SENSORDATA_OFFSET(index) + EE_SD_DETECTEDFLAG_OFFSET())
-		#define EE_SENSORDATA_DATETIMESTAMP_OFFSET(index)	(EE_SENSORDATA_OFFSET(index) + EE_SD_DATETIMESTAMP_OFFSET())
-		#define EE_SENSORDATA_VALUE_OFFSET(index)			(EE_SENSORDATA_OFFSET(index) + EE_SD_VALUE_OFFSET())
+	#define EE_SENSORDATA_ADDRESS_OFFSET(index)				(EE_SENSORDATA_OFFSET(index) + EE_SD_ADDRESS_OFFSET())
+	#define EE_SENSORDATA_DETECTEDFLAG_OFFSET(index)		(EE_SENSORDATA_OFFSET(index) + EE_SD_DETECTEDFLAG_OFFSET())
+	#define EE_SENSORDATA_DATETIMESTAMP_OFFSET(index)		(EE_SENSORDATA_OFFSET(index) + EE_SD_DATETIMESTAMP_OFFSET())
+	#define EE_SENSORDATA_VALUE_OFFSET(index)				(EE_SENSORDATA_OFFSET(index) + EE_SD_VALUE_OFFSET())
 
 
 

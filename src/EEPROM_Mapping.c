@@ -102,12 +102,12 @@ _STATIC EE_ReturnCode_t EE_Write(UINT16_t Address, UINT8_t * pWriteBuffer,
 /*
  *----------------------------------------------------------------------
  *  Function: _STATIC EE_ReturnCode_t EE_ReadPage(UINT16_t Address,
- *            UINT8_t * pReadBuffer)
+ *	    UINT8_t * pReadBuffer)
  *
  *  Summary	: This function reads a page from the EEPROM
  *
  *  Input	: Address - start address in EEPROM
- *            pReadBuffer - store the read data into this buffer
+ *	    pReadBuffer - store the read data into this buffer
  *
  *  Output	: Result of EEPROM Operation as Enum
  *
@@ -116,17 +116,18 @@ _STATIC EE_ReturnCode_t EE_Write(UINT16_t Address, UINT8_t * pWriteBuffer,
  *----------------------------------------------------------------------
  */
 _STATIC EE_ReturnCode_t EE_ReadPage(UINT16_t Address, UINT8_t * pReadBuffer,
-                size_t Size)
+		size_t Size)
 {
-        EE_ReturnCode_t result = EE_INVALIDADDRESS;
-       if ( Address <= (EE_DATABASE_SIZE - EE_PAGESIZE) )
-        {
-#ifdef __SIMULATE_EE_MEMORY_AS_ARRAY
-                memcpy((void*)pReadBuffer, (void*)&EE_MEMORY[Address], Size);
-#endif
-                result = EE_OK;
+	if ( Address > (EE_DATABASE_SIZE - EE_PAGESIZE) )
+	{
+		return EE_INVALIDADDRESS;
 	}
-	return result;
+
+#ifdef __SIMULATE_EE_MEMORY_AS_ARRAY
+	memcpy((void*)pReadBuffer, (void*)&EE_MEMORY[Address], Size);
+#endif
+
+	return EE_OK;
 }
 
 
@@ -134,12 +135,12 @@ _STATIC EE_ReturnCode_t EE_ReadPage(UINT16_t Address, UINT8_t * pReadBuffer,
 /*
  *----------------------------------------------------------------------
  *  Function: _STATIC EE_ReturnCode_t EE_WritePage(UINT16_t Address,
- *            UINT8_t * pWriteBuffer, size_t Size)
+ *	    UINT8_t * pWriteBuffer, size_t Size)
  *
  *  Summary	: This function writes a page in to the EEPROM
  *
  *  Input	: Address - start address in EEPROM
- *            pWriteBuffer - buffer containing data to write
+ *	    pWriteBuffer - buffer containing data to write
  *
  *  Output	: Result of EEPROM Operation as Enum
  *
@@ -148,17 +149,18 @@ _STATIC EE_ReturnCode_t EE_ReadPage(UINT16_t Address, UINT8_t * pReadBuffer,
  *----------------------------------------------------------------------
  */
 _STATIC EE_ReturnCode_t EE_WritePage(UINT16_t Address, UINT8_t * pWriteBuffer,
-                                             size_t Size)
+						size_t Size)
 {
-        EE_ReturnCode_t result = EE_INVALIDADDRESS;
-       if ( Address <= (EE_DATABASE_SIZE - EE_PAGESIZE) )
-        {
-#ifdef __SIMULATE_EE_MEMORY_AS_ARRAY
-                memcpy((void*)&EE_MEMORY[Address], (void*)pWriteBuffer, Size);
-#endif
-                result = EE_OK;
+	if ( Address > (EE_DATABASE_SIZE - EE_PAGESIZE) )
+	{
+		return EE_INVALIDADDRESS;
 	}
-	return result;
+
+#ifdef __SIMULATE_EE_MEMORY_AS_ARRAY
+	memcpy((void*)&EE_MEMORY[Address], (void*)pWriteBuffer, Size);
+#endif
+
+	return EE_OK;
 }
 
 
@@ -167,13 +169,13 @@ _STATIC EE_ReturnCode_t EE_WritePage(UINT16_t Address, UINT8_t * pWriteBuffer,
 /*
  *----------------------------------------------------------------------
  *  Function: EE_ReturnCode_t EE_Read(UINT16_t Address,
- *                                     UINT8_t * pReadBuffer,
- *		                               size_t Size)
+ *				     UINT8_t * pReadBuffer,
+ *					       size_t Size)
  *
  *  Summary	: This function reads data from the EEPROM
  *
  *  Input	: Address - start address in EEPROM
- *            pReadBuffer - buffer to read data in to
+ *	    pReadBuffer - buffer to read data in to
  *
  *  Output	: Result of EEPROM Operation as Enum
  *
@@ -184,58 +186,64 @@ _STATIC EE_ReturnCode_t EE_WritePage(UINT16_t Address, UINT8_t * pWriteBuffer,
 _STATIC EE_ReturnCode_t EE_Read(UINT16_t Address, UINT8_t * pReadBuffer,
 		size_t Size)
 {
-	EE_ReturnCode_t result = EE_INVALIDADDRESS;
-	UINT8_t CurrentPageNumber = Address / EE_PAGESIZE;
-	UINT8_t CurrentPositionWithinPage = Address % EE_PAGESIZE;
-	UINT8_t NumBytesWithinCurrentPage = 0;
-	UINT16_t StartAddress = Address;
-	UINT16_t byteIndex = 0;
-
-	if ( (Address + Size) <= EE_DATABASE_SIZE )
+	/* Will it fit within the current page */
+	if ( (Address + Size) > EE_DATABASE_SIZE )
 	{
-		/* Will it fit within the current page */
-		if ((CurrentPositionWithinPage + Size) < EE_PAGESIZE)
-		{
-			/* Read into this page and be done */
-			/* Call to Page Read */
-			result = EE_ReadPage(StartAddress, pReadBuffer, Size);
-		}
-		else
-		{
-			UINT16_t RemainingBytesToRead = Size;
-
-			while (RemainingBytesToRead > 0)
-			{
-				/* do we have more than one page of data to be written ? */
-				if (RemainingBytesToRead > EE_PAGESIZE)
-				{
-					/* Read whatever fits within the current page */
-					NumBytesWithinCurrentPage = EE_PAGESIZE - CurrentPositionWithinPage;
-				}
-				else
-				{
-					/* Read whatever is remaining */
-					NumBytesWithinCurrentPage = RemainingBytesToRead;
-				}
-
-				/* Read Page */
-				result = EE_ReadPage(StartAddress, &pReadBuffer[byteIndex], NumBytesWithinCurrentPage);
-
-				StartAddress += NumBytesWithinCurrentPage;
-
-				byteIndex += NumBytesWithinCurrentPage;
-
-				/* update remaining bytes to Read */
-				RemainingBytesToRead -= NumBytesWithinCurrentPage;
-
-				/* since we are done with one full page, we can set start byte position of next page to 0 */
-				CurrentPositionWithinPage = 0;
-
-				CurrentPageNumber++;
-			}
-		}
+		return EE_INVALIDADDRESS;
 	}
-	return result;
+
+	/* Will it fit within the current page */
+	if ((Address % EE_PAGESIZE + Size) < EE_PAGESIZE)
+	{
+		/* Read into this page and be done */
+		/* Call to Page Read */
+		return EE_ReadPage(Address, pReadBuffer, Size);
+	}
+	else
+	{
+		/* Multipage */
+		EE_ReturnCode_t result = EE_INVALIDADDRESS;
+		UINT16_t byteIndex = 0;
+		UINT16_t StartAddress = Address;
+		UINT8_t CurrentPageNumber = Address / EE_PAGESIZE;
+		UINT8_t CurrentPositionWithinPage = Address % EE_PAGESIZE;
+
+		UINT16_t RemainingBytesToRead = Size;
+
+		while (RemainingBytesToRead > 0)
+		{
+			UINT8_t NumBytesWithinCurrentPage = 0;
+
+			/* do we have more than one page of data to be written ? */
+			if (RemainingBytesToRead > EE_PAGESIZE)
+			{
+				/* Read whatever fits within the current page */
+				NumBytesWithinCurrentPage = EE_PAGESIZE - CurrentPositionWithinPage;
+			}
+			else
+			{
+				/* Read whatever is remaining */
+				NumBytesWithinCurrentPage = RemainingBytesToRead;
+			}
+
+			/* Read Page */
+			result = EE_ReadPage(StartAddress, &pReadBuffer[byteIndex], NumBytesWithinCurrentPage);
+
+			StartAddress += NumBytesWithinCurrentPage;
+
+			byteIndex += NumBytesWithinCurrentPage;
+
+			/* update remaining bytes to Read */
+			RemainingBytesToRead -= NumBytesWithinCurrentPage;
+
+			/* since we are done with one full page, we can set start byte position of next page to 0 */
+			CurrentPositionWithinPage = 0;
+
+			CurrentPageNumber++;
+		}
+
+		return result;
+	}
 }
 
 
@@ -243,13 +251,13 @@ _STATIC EE_ReturnCode_t EE_Read(UINT16_t Address, UINT8_t * pReadBuffer,
 /*
  *----------------------------------------------------------------------
  *  Function: EE_ReturnCode_t EE_Write(UINT16_t Address,
- *                                     UINT8_t * pWriteBuffer,
- *		                               size_t Size)
+ *				     UINT8_t * pWriteBuffer,
+ *					       size_t Size)
  *
  *  Summary	: This function writes data in to the EEPROM
  *
  *  Input	: Address - start address in EEPROM
- *            pWriteBuffer - buffer containing data to write
+ *	    pWriteBuffer - buffer containing data to write
  *
  *  Output	: Result of EEPROM Operation as Enum
  *
@@ -260,59 +268,65 @@ _STATIC EE_ReturnCode_t EE_Read(UINT16_t Address, UINT8_t * pReadBuffer,
 _STATIC EE_ReturnCode_t EE_Write(UINT16_t Address, UINT8_t * pWriteBuffer,
 		size_t Size)
 {
-	EE_ReturnCode_t result = EE_INVALIDADDRESS;
-	UINT8_t CurrentPageNumber = Address / EE_PAGESIZE;
-	UINT8_t CurrentPositionWithinPage = Address % EE_PAGESIZE;
-	UINT8_t NumBytesFitWithinCurrentPage = 0;
-	UINT16_t StartAddress = Address;
-	UINT16_t byteIndex = 0;
-
-	if ( (Address + Size) <= EE_DATABASE_SIZE )
+	if ( (Address + Size) > EE_DATABASE_SIZE )
 	{
-		/* Will it fit within the current page */
-		if ((CurrentPositionWithinPage + Size) < EE_PAGESIZE)
-		{
-			/* Write into this page and be done */
-			/* Call to Page Write */
-			result = EE_WritePage(StartAddress, pWriteBuffer, Size);
-		}
-		else
-		{
-			UINT16_t RemainingBytesToWrite = Size;
-
-			while (RemainingBytesToWrite > 0)
-			{
-				/* do we have more than one page of data to be written ? */
-				if (RemainingBytesToWrite > EE_PAGESIZE)
-				{
-					/* Write whatever fits within the current page */
-					NumBytesFitWithinCurrentPage = EE_PAGESIZE - CurrentPositionWithinPage;
-				}
-				else
-				{
-					/* Write whatever is remaining */
-					NumBytesFitWithinCurrentPage = RemainingBytesToWrite;
-				}
-
-				/* Write Page */
-				result = EE_WritePage(StartAddress, &pWriteBuffer[byteIndex], NumBytesFitWithinCurrentPage);
-
-				StartAddress += NumBytesFitWithinCurrentPage;
-
-				byteIndex += NumBytesFitWithinCurrentPage;
-
-				/* update remaining bytes to write */
-				RemainingBytesToWrite -= NumBytesFitWithinCurrentPage;
-
-				/* since we are done with one full page, we can set start byte position of next page to 0 */
-				CurrentPositionWithinPage = 0;
-
-				CurrentPageNumber++;
-			}
-		}
+		return EE_INVALIDADDRESS;
 	}
-	return result;
+
+	/* Will it fit within the current page */
+	if ((Address % EE_PAGESIZE + Size) < EE_PAGESIZE)
+	{
+		/* Write into this page and be done */
+		/* Call to Page Write */
+		return EE_WritePage(Address, pWriteBuffer, Size);
+	}
+	else
+	{
+		/* Multipage */
+		EE_ReturnCode_t result = EE_INVALIDADDRESS;
+		UINT16_t byteIndex = 0;
+		UINT16_t StartAddress = Address;
+		UINT8_t CurrentPageNumber = Address / EE_PAGESIZE;
+		UINT8_t CurrentPositionWithinPage = Address % EE_PAGESIZE;
+
+		UINT16_t RemainingBytesToWrite = Size;
+
+		while (RemainingBytesToWrite > 0)
+		{
+			UINT8_t NumBytesFitWithinCurrentPage = 0;
+
+			/* do we have more than one page of data to be written ? */
+			if (RemainingBytesToWrite > EE_PAGESIZE)
+			{
+				/* Write whatever fits within the current page */
+				NumBytesFitWithinCurrentPage = EE_PAGESIZE - CurrentPositionWithinPage;
+			}
+			else
+			{
+				/* Write whatever is remaining */
+				NumBytesFitWithinCurrentPage = RemainingBytesToWrite;
+			}
+
+			/* Write Page */
+			result = EE_WritePage(StartAddress, &pWriteBuffer[byteIndex], NumBytesFitWithinCurrentPage);
+
+			StartAddress += NumBytesFitWithinCurrentPage;
+
+			byteIndex += NumBytesFitWithinCurrentPage;
+
+			/* update remaining bytes to write */
+			RemainingBytesToWrite -= NumBytesFitWithinCurrentPage;
+
+			/* since we are done with one full page, we can set start byte position of next page to 0 */
+			CurrentPositionWithinPage = 0;
+
+			CurrentPageNumber++;
+		}
+
+		return result;
+	}
 }
+
 /*
 *----------------------------------------------------------------------
 *   Export Functions Definitions
@@ -322,6 +336,7 @@ EE_ReturnCode_t EE_ReadWrite(UINT16_t Address, UINT8_t * pWriteBuffer,
 		size_t Size, EE_Opcode_t operation)
 {
 	EE_ReturnCode_t result = EE_OK;
+
 	switch(operation)
 	{
 	case EEOP_READ:
@@ -336,5 +351,6 @@ EE_ReturnCode_t EE_ReadWrite(UINT16_t Address, UINT8_t * pWriteBuffer,
 		result = EE_INVALIDOPERATION;
 		break;
 	}
+
 	return result;
 }

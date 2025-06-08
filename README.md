@@ -1,5 +1,10 @@
 # EEPROM_Database
 
+<versionBadge>![Version 0.0.1](https://img.shields.io/badge/version-0.0.1-blue.svg)</versionBadge>
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![C](https://img.shields.io/badge/Language-C-blue.svg)](https://en.wikipedia.org/wiki/C_(programming_language))
+[![CI/CD Status Badge](https://github.com/Mrunmoy/EEPROM_Database/actions/workflows/ci.yml/badge.svg)](https://github.com/Mrunmoy/EEPROM_Database/actions)
+
 This project provides a small C implementation of a flat-file database stored in EEPROM memory. It is intended for embedded systems that need a simple, structured way to persist device configuration, boot information and sensor data.
 
 ## Repository Layout
